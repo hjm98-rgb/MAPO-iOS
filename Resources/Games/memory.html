@@ -13,8 +13,8 @@ deck.forEach((s,i)=>{const d=document.createElement('div');d.className='c';d.dat
 d.onclick=()=>{if(lock||d.classList.contains('ok')||d.classList.contains('f'))return;
 d.classList.add('f');open.push(d);if(open.length==2){lock=true;
 const [a,b]=open;if(a.dataset.s==b.dataset.s){a.classList.add('ok');b.classList.add('ok');done++;document.getElementById('s').textContent='配对数 '+done+' / 8';open=[];lock=false;
-if(done==8){document.getElementById('m').textContent='全部配对 ✓ 点击重开';}},else{setTimeout(()=>{a.classList.remove('f');b.classList.remove('f');open=[];lock=false},700)}}};
+if(done==8){document.getElementById('m').textContent='全部配对 ✓ 点击任意处重开';}}else{setTimeout(()=>{a.classList.remove('f');b.classList.remove('f');open=[];lock=false},700)}}};
 g.appendChild(d)});
-document.body.addEventListener('click',e=>{if(e.target.id==''&&done==8){deck.sort(()=>Math.random()-0.5);location.reload()}});
+document.body.addEventListener('click',e=>{if(done==8&&!e.target.classList.contains('c'))location.reload()});
 let f=0,last=performance.now();function loop(t){f++;if(t-last>1000){window.__mapoFps=Math.round(f*1000/(t-last));f=0;last=t}requestAnimationFrame(loop)}requestAnimationFrame(loop);
 </script></body></html>
