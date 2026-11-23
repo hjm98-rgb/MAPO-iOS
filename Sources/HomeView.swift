@@ -34,8 +34,11 @@ struct HomeView: View {
                     .padding(.bottom, 30)
                 }
             }
-            .navigationDestination(item: $selected) { game in
-                GameDetailView(game: game)
+            .navigationDestination(isPresented: Binding(
+                get: { selected != nil },
+                set: { if !$0 { selected = nil } }
+            )) {
+                if let game = selected { GameDetailView(game: game) }
             }
             .sheet(isPresented: $showSettings) { SettingsView() }
         }
