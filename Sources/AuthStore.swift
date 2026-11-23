@@ -223,45 +223,11 @@ struct OLKMAuthWebView: UIViewRepresentable {
             if url.host == OLKMConfig.callbackHost {
                 decisionHandler(.cancel)
                 onCallback(url)
-                let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
-                if let code = items.first(where: { $0.name == "code" })?.value {
-                    runExchange(in: webView, code: code)
-                }
                 return
             }
 
             decisionHandler(.allow)
         }
 
-        /// 在站点页面上下文里换令牌：带 credentials 与站内 csrf_token，平台不会拦。
-        private func runExchange(in web: WKWebView, code: String) {
-            let base = OLKMConfig.baseURL.absoluteString
-            let script = """
-            (function(){
-              function ck(n){var m=document.cookie.match(new RegExp('(^| )'+n+'=([^;]+)'));return m?decodeURIComponent(m[2]):'';}
-              var csrf=ck('suda-csrf-token');
-              var base='\(base)';
-              var code='\(code)';
-              var body={grant_type:'authorization_code',code:code,client_id:'\(OLKMConfig.clientId)',client_secret:'\(OLKMConfig.clientSecret)',redirect_uri:'\(OLKMConfig.redirectURI)'};
-              function done(q){location.href='\(OLKMConfig.bridgeScheme)://auth?'+q;}
-              fetch(base+'/api/oauth/token',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json','X-Suda-Csrf-Token':csrf},body:JSON.stringify(body)})
-                .then(function(r){return r.text()})
-                .then(function(t){
-                  var j=null;try{j=JSON.parse(t)}catch(e){}
-                  if(!j||!j.access_token){done('err='+encodeURIComponent(t.slice(0,180)));return;}
-                  var tok=j.access_token;
-                  return fetch(base+'/api/oauth/userinfo',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok,'X-Suda-Csrf-Token':csrf}})
-                    .then(function(r){return r.text()})
-                    .then(function(u){done('tok='+encodeURIComponent(tok)+'&user='+encodeURIComponent(u));});
-                })
-                .catch(function(e){done('err='+encodeURIComponent(String(e)));});
-            })();
-            """
-            web.evaluateJavaScript(script) { _, err in
-                if let err {
-                    print("OLKM exchange js error:", err.localizedDescription)
-                }
-            }
-        }
     }
 }
