@@ -153,7 +153,7 @@ final class AuthStore: NSObject, ObservableObject {
         let nickname = (user["nickname"] as? String) ?? (user["username"] as? String) ?? "玩家"
         let username = (user["username"] as? String) ?? nickname
         var p = PlayerProfile(nickname: nickname, username: username, registeredAt: Date())
-        if let iso = user["created_at"] as? String, let d = ISO8601DateFormatter().date(from: iso) {
+        if let iso = (user["createdAt"] ?? user["created_at"]) as? String, let d = ISO8601DateFormatter().date(from: iso) {
             p.registeredAt = d
         }
         profile = p
@@ -239,18 +239,18 @@ struct OLKMAuthWebView: UIViewRepresentable {
             let script = """
             (function(){
               function ck(n){var m=document.cookie.match(new RegExp('(^| )'+n+'=([^;]+)'));return m?decodeURIComponent(m[2]):'';}
-              var csrf=ck('csrf_token');
+              var csrf=ck('suda-csrf-token');
               var base='\(base)';
               var code='\(code)';
               var body={grant_type:'authorization_code',code:code,client_id:'\(OLKMConfig.clientId)',client_secret:'\(OLKMConfig.clientSecret)',redirect_uri:'\(OLKMConfig.redirectURI)'};
               function done(q){location.href='\(OLKMConfig.bridgeScheme)://auth?'+q;}
-              fetch(base+'/api/oauth/token',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json','csrf-token':csrf},body:JSON.stringify(body)})
+              fetch(base+'/api/oauth/token',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json','X-Suda-Csrf-Token':csrf},body:JSON.stringify(body)})
                 .then(function(r){return r.text()})
                 .then(function(t){
                   var j=null;try{j=JSON.parse(t)}catch(e){}
                   if(!j||!j.access_token){done('err='+encodeURIComponent(t.slice(0,180)));return;}
                   var tok=j.access_token;
-                  return fetch(base+'/api/oauth/userinfo',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok,'csrf-token':csrf}})
+                  return fetch(base+'/api/oauth/userinfo',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok,'X-Suda-Csrf-Token':csrf}})
                     .then(function(r){return r.text()})
                     .then(function(u){done('tok='+encodeURIComponent(tok)+'&user='+encodeURIComponent(u));});
                 })
