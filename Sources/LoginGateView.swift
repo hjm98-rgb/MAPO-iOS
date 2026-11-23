@@ -70,6 +70,8 @@ struct LoginGateView: View {
             NavigationStack {
                 OLKMAuthWebView(url: item.url) { url in
                     auth.handleCallback(url)
+                } onBridge: { url in
+                    auth.handleBridge(url: url)
                 }
                 .ignoresSafeArea(edges: .bottom)
                 .navigationTitle("OLKM 授权登录")
