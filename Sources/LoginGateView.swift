@@ -63,5 +63,28 @@ struct LoginGateView: View {
                 .padding(.bottom, 46)
             }
         }
+        .sheet(item: Binding(
+            get: { auth.authSheetURL.map { AuthSheetURL(url: $0) } },
+            set: { if $0 == nil { auth.authSheetURL = nil } }
+        )) { item in
+            NavigationStack {
+                OLKMAuthWebView(url: item.url) { url in
+                    auth.handleCallback(url)
+                }
+                .ignoresSafeArea(edges: .bottom)
+                .navigationTitle("OLKM 授权登录")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("取消") { auth.authSheetURL = nil }
+                    }
+                }
+            }
+        }
     }
+}
+
+private struct AuthSheetURL: Identifiable {
+    let url: URL
+    var id: String { url.absoluteString }
 }
