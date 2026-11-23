@@ -21,8 +21,9 @@ enum OLKMConfig {
         ]
         return c.url!
     }
-    static var tokenURL: URL { baseURL.appendingPathComponent("api/oauth/token") }
-    static var userinfoURL: URL { baseURL.appendingPathComponent("api/oauth/userinfo") }
+    /// 换令牌走非 /api 前缀：平台只对 /api/* 强制 Cookie+CSRF，第三方服务端带不了。
+    static var tokenURL: URL { baseURL.appendingPathComponent("oauth/token") }
+    static var userinfoURL: URL { baseURL.appendingPathComponent("oauth/userinfo") }
 }
 
 @MainActor
