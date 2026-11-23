@@ -1,0 +1,26 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<style>html,body{margin:0;height:100%;background:#050a12;overflow:hidden;touch-action:none}#s{position:fixed;left:12px;top:12px;color:#4f8cff;font:12px monospace}canvas{display:block}</style></head>
+<body><div id="s">得分 0</div><canvas id="c"></canvas><script>
+const c=document.getElementById('c'),x=c.getContext('2d');let W,H,bx,by,bvx,bvy,pw=110,px,sc=0,over=false;
+const bw=52,bh=18,rows=6,cols=0,bs=[];
+function fit(){W=c.width=innerWidth;H=c.height=innerHeight;px=W/2-pw/2;}
+function init(){bs.length=0;const cols=Math.floor(W/1.05/bw);for(let r=0;r<rows;r++)for(let i=0;i<cols;i++)bs.push({x:i*bw+10,y:r*bh+70,a:1});
+bx=W/2;by=H-140;bvx=3.2*(Math.random()<0.5?1:-1);bvy=-4;sc=0;over=false;}
+addEventListener('resize',()=>{fit();if(!bs.length)init();});
+addEventListener('touchmove',e=>{px=e.touches[0].clientX-pw/2},{passive:true});
+addEventListener('mousemove',e=>{px=e.clientX-pw/2});
+function loop(){fit();x.fillStyle='#050a12';x.fillRect(0,0,W,H);
+bs.forEach(b=>{if(!b.a)return;x.fillStyle='rgba(79,140,255,'+(0.35+0.5*(1-b.y/H))+')';x.fillRect(b.x,b.y,bw-4,bh-4)});
+bx+=bvx;by+=bvy;if(bx<6||bx>W-6)bvx*=-1;if(by<50){bvy=Math.abs(bvy);}
+x.fillStyle='#7cf7c8';x.fillRect(px,H-64,pw,14);
+if(by>H-64&&bx>px&&bx<px+pw){bvy=-Math.abs(bvy);bvx+=(bx-(px+pw/2))*0.05;sc+=5;document.getElementById('s').textContent='得分 '+sc;}
+bs.forEach(b=>{if(b.a&&bvy>0&&bx>b.x&&bx<b.x+bw&&by>b.y&&by<b.y+bh){b.a=0;bvy=Math.abs(bvy);sc+=10;document.getElementById('s').textContent='得分 '+sc;}});
+if(by>H){over=true;}
+if(over){x.fillStyle='#fff';x.font='15px monospace';x.textAlign='center';x.fillText('球落地了 · 点击重来',W/2,H/2);
+}else if(bs.every(b=>!b.a)){x.fillStyle='#7cf7c8';x.font='15px monospace';x.textAlign='center';x.fillText('全部打穿 ✓ 点击再来',W/2,H/2);over=true;}
+requestAnimationFrame(loop)}
+addEventListener('touchstart',()=>{if(over)init()});
+addEventListener('keydown',e=>{if(e.key=='a')px-=26;if(e.key=='d')px+=26});
+fit();init();
+let f=0,last=performance.now();function fps(t){f++;if(t-last>1000){window.__mapoFps=Math.round(f*1000/(t-last));f=0;last=t}requestAnimationFrame(fps)}requestAnimationFrame(fps);
+requestAnimationFrame(loop);</script></body></html>

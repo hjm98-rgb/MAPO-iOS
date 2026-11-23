@@ -1,0 +1,26 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<style>html,body{margin:0;height:100%;background:#0b0712;overflow:hidden;touch-action:none}canvas{display:block}#s{position:fixed;left:12px;top:12px;color:#ff5c8a;font:12px monospace}</style></head>
+<body><div id="s">距离 0</div><canvas id="c"></canvas><script>
+const c=document.getElementById('c'),x=c.getContext('2d');let W,H,y=0,vy=0,g=0,obs=[],dist=0,dead=false,hue=0;
+function fit(){W=c.width=innerWidth;H=c.height=innerHeight;}
+addEventListener('resize',fit);fit();
+function jump(){if(dead){reset();return}if(y===0)vy=-13;}
+addEventListener('touchstart',jump,{passive:true});addEventListener('mousedown',jump);
+addEventListener('keydown',e=>{if(e.code=='Space')jump()});
+function reset(){y=0;vy=0;obs=[];dist=0;dead=false;}
+function loop(){fit();hue+=1;x.fillStyle='#0b0712';x.fillRect(0,0,W,H);
+x.fillStyle='rgba(255,92,138,0.12)';x.fillRect(0,H-70,W,70);
+const base=H-70-42;
+vy+=0.75;y=Math.max(y+vy,0);if(y===0)vy=0;
+const px=Math.max(70,W*0.2);
+x.fillStyle='#ff5c8a';x.fillRect(px,base-y,34,42);
+obs.forEach(o=>{x.fillStyle='#7cf7c8';x.fillRect(o.x,base-o.h,26,o.h)});
+const speed=6+dist/200;obs.forEach(o=>o.x-=speed);
+if(!obs.length||obs[obs.length-1].x<W-260){obs.push({x:W,h:30+Math.random()*50})}
+obs=obs.filter(o=>o.x>-40);
+obs.forEach(o=>{if(px+34>o.x&&px<o.x+26&&base-y+42>base-o.h){dead=true}});
+if(!dead)dist+=1;document.getElementById('s').textContent='距离 '+dist;
+if(dead){x.fillStyle='#fff';x.font='15px monospace';x.textAlign='center';x.fillText('撞上了 · 点击重来',W/2,H/2)}
+requestAnimationFrame(loop)}
+let f=0,last=performance.now();function fps(t){f++;if(t-last>1000){window.__mapoFps=Math.round(f*1000/(t-last));f=0;last=t}requestAnimationFrame(fps)}requestAnimationFrame(fps);
+loop();</script></body></html>

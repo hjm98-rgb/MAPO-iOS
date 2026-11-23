@@ -1,0 +1,20 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<style>html,body{margin:0;height:100%;background:#100b07;overflow:hidden;touch-action:manipulation;font-family:monospace}
+#s{position:fixed;left:12px;top:10px;color:#ffb347;font-size:13px}#t{position:fixed;right:12px;top:10px;color:#fff;font-size:13px}
+.t{position:absolute;width:74px;height:74px;border-radius:14px;background:linear-gradient(145deg,#ffb347,#c9541b);display:flex;align-items:center;justify-content:center;color:#1b0e06;font-weight:bold;user-select:none}
+</style></head><body><div id="s">分数 0</div><div id="t">10.0s</div><script>
+let score=0,left=10,run=false,cur=null;
+function spawn(){if(cur)cur.el.remove();const el=document.createElement('div');el.className='t';el.textContent='+1';
+const m=40;el.style.left=(m+Math.random()*(innerWidth-2*m-74))+'px';
+el.style.top=(70+Math.random()*(innerHeight-70-74-40))+'px';
+el.onclick=()=>{score+=1;document.getElementById('s').textContent='分数 '+score;spawn();};
+document.body.appendChild(el);cur={el};}
+function start(){score=0;left=10;run=true;document.getElementById('s').textContent='分数 0';spawn();
+const iv=setInterval(()=>{left-=0.1;document.getElementById('t').textContent=left.toFixed(1)+'s';
+if(left<=0){clearInterval(iv);run=false;if(cur)cur.el.remove();
+const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;flex-direction:column;gap:14px';
+d.innerHTML='<div>时间到 · 得分 '+score+'</div><div style="color:#ffb347">点击重新开始</div>';d.onclick=()=>{d.remove();start()};document.body.appendChild(d);}},100);}
+document.addEventListener('touchstart',()=>{if(!run)start()},{passive:true});
+document.addEventListener('click',()=>{if(!run)start()});
+let f=0,last=performance.now();function loop(t){f++;if(t-last>1000){window.__mapoFps=Math.round(f*1000/(t-last));f=0;last=t}requestAnimationFrame(loop)}requestAnimationFrame(loop);
+</script></body></html>

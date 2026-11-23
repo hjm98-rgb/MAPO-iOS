@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<style>html,body{margin:0;height:100%;background:#07110b;overflow:hidden;touch-action:none}canvas{display:block} #s{position:fixed;left:12px;top:12px;color:#3ecb78;font:12px monospace}</style>
+</head><body><div id="s">分数 0</div><canvas id="c"></canvas>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d');let n=16,w=0,h=0,g=24;
+function fit(){w=c.width=innerWidth;h=c.height=innerHeight;g=Math.floor(Math.min(w,h)/20);}
+addEventListener('resize',fit);
+let dir={x:1,y:0},sn=[{x:8,y:8}],food={x:5,y:5},score=0,dead=0;
+function reset(){sn=[{x:8,y:8}];dir={x:1,y:0};score=0;document.getElementById('s').textContent='分数 0';dead=0;}
+function step(){if(dead)return;const head={x:sn[0].x+dir.x,y:sn[0].y+dir.y};
+if(head.x<0||head.y<0||head.x>=n||head.y>=n){dead=1;return;}
+if(sn.some(p=>p.x==head.x&&p.y==head.y)){dead=1;return;}
+sn.unshift(head);if(head.x==food.x&&head.y==food.y){score+=10;document.getElementById('s').textContent='分数 '+score;food={x:Math.floor(Math.random()*n),y:Math.floor(Math.random()*n)};}else sn.pop();}
+function draw(){fit();x.fillStyle='#07110b';x.fillRect(0,0,w,h);const off=(w-g*n)/2,offy=(h-g*n)/2;
+x.fillStyle='#e2464f';x.fillRect(off+food.x*g+2,offy+food.y*g+2,g-4,g-4);
+sn.forEach((p,i)=>{x.fillStyle=i==0?'#3ecb78':'#1f7a48';x.fillRect(off+p.x*g+2,offy+p.y*g+2,g-4,g-4)});
+if(dead){x.fillStyle='#fff';x.font='16px monospace';x.textAlign='center';x.fillText('撞了 · 点击重来',w/2,h/2)}}
+setInterval(()=>{step();draw()},130);
+let sx=0,sy=0;addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY});
+addEventListener('touchend',e=>{const t=e.changedTouches[0];const dx=t.clientX-sx,dy=t.clientY-sy;
+if(dead){reset();return}
+if(Math.abs(dx)>Math.abs(dy)){if(dx>20&&dir.x!= -1)dir={x:1,y:0};if(dx< -20&&dir.x!=1)dir={x:-1,y:0}}
+else{if(dy>20&&dir.y!= -1)dir={x:0,y:1};if(dy< -20&&dir.y!=1)dir={x:0,y:-1}}});
+addEventListener('keydown',e=>{const k=e.key;if(k=='ArrowLeft'&&dir.x!=1)dir={x:-1,y:0};if(k=='ArrowRight'&&dir.x!=-1)dir={x:1,y:0};if(k=='ArrowUp'&&dir.y!=1)dir={x:0,y:-1};if(k=='ArrowDown'&&dir.y!=-1)dir={x:0,y:1};if(dead&&k==' ')reset()});
+let f=0,last=performance.now();function loop(t){f++;if(t-last>1000){window.__mapoFps=Math.round(f*1000/(t-last));f=0;last=t}requestAnimationFrame(loop)}requestAnimationFrame(loop);
+</script></body></html>
